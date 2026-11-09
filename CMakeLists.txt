@@ -19,4 +19,7 @@ if (NOT MSVC AND CMAKE_BUILD_TYPE STREQUAL "Debug")
     target_link_options(sanitizers INTERFACE -fsanitize=address,undefined)
 endif ()
 
+include(CTest)
+
 add_subdirectory(src)
+add_subdirectory(tests)
