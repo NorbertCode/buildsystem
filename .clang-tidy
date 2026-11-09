@@ -1,0 +1,15 @@
+Checks: >
+  -*,
+  clang-diagnostic-*,
+  clang-analyzer-*,
+  bugprone-*,
+  cppcoreguidelines-*,
+  performance-*,
+  modernize-*,
+  readability-*,
+  -bugprone-easily-swappable-parameters,
+  -modernize-use-trailing-return-type
+
+WarningsAsErrors: '*'
+HeaderFilterRegex: 'src/.*'
+FormatStyle: 'file'
