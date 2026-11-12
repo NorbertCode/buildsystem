@@ -9,7 +9,7 @@ The purpose of the project is to create a tool for building C++ projects. It act
 
 This will be achieved by going through multiple steps. First, the program will read the user's configuration files. Based on them, it will create a directed acyclic graph (DAG) of targets and their dependencies. The graph will then be used to decide compilation order and incrementally (only compiling targets which have been modified) build the user's software. 
 
-The tool will mostly target the `gcc` compiler, though our architecture will allow for easily adding other compilers by using polymorphism. 
+Our architecture will allow for easily adding support for multiple compilers (by using polymorphism), but we will focus only on the `gcc` compiler. This means that on Windows the tool will require `MinGW` to be installed. 
 
 # Configuration Files and Launching
 
