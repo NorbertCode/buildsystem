@@ -30,3 +30,33 @@ jobs:
         with:
           name: build-${{ matrix.os }}
           path: build/
+
+  format:
+    name: Formatting
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Install Clang-Format
+        run: sudo apt-get update && sudo apt-get install -y clang-format
+
+      - name: Run Clang-Format
+        run: find . -path ./build -prune -o -type f \( -name "*.cpp" -o -name "*.hpp" \) -exec clang-format --dry-run --Werror -style=file {} +
+
+  analyze:
+    name: Static Analysis
+    needs: build
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/download-artifact@v7
+        with:
+          name: build-ubuntu-24.04
+          path: build/
+
+      - name: Install Clang-Tidy
+        run: sudo apt-get update && sudo apt-get install -y clang-tidy
+
+      - name: Run Clang-Tidy
+        run: run-clang-tidy -p build
