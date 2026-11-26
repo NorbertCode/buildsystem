@@ -15,7 +15,7 @@ endif ()
 
 add_library(sanitizers INTERFACE)
 if (NOT MSVC AND CMAKE_BUILD_TYPE STREQUAL "Debug")
-    target_compile_options(sanitizers INTERFACE -fsanitize=address,undefined -fno-omit-frame-pointer)
+    target_compile_options(sanitizers INTERFACE -fsanitize=address,undefined -fno-sanitize-recover=all -fno-omit-frame-pointer)
     target_link_options(sanitizers INTERFACE -fsanitize=address,undefined)
 endif ()
 
