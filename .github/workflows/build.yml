@@ -78,6 +78,10 @@ jobs:
           name: build-${{ matrix.os }}
           path: build/
 
+      - name: Add Permissions to Executable
+        if: runner.os != 'Windows'
+        run: chmod +x build/tests/tests
+
       - name: Run Tests
         run: ctest --test-dir build -C Debug --output-on-failure
 
