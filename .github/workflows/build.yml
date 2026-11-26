@@ -80,3 +80,20 @@ jobs:
 
       - name: Run Tests
         run: ctest --test-dir build -C Debug --output-on-failure
+
+  docs:
+    name: Generate Docs
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Install Doxygen
+        run: sudo apt-get update && sudo apt-get install -y doxygen
+
+      - name: Build Docs
+        run: doxygen Doxyfile
+
+      - uses: actions/upload-artifact@v7
+        with:
+          name: docs
+          path: docs/html
