@@ -1,5 +1,5 @@
 PROJECT_NAME = "Build System"
-INPUT = src/
+INPUT = src/ README.md
 RECURSIVE = YES
 OUTPUT_DIRECTORY = docs/
 EXTRACT_ALL = YES
