@@ -97,3 +97,34 @@ jobs:
         with:
           name: docs
           path: docs/html
+
+  coverage:
+    name: Calculate Coverage
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Install gcovr
+        run: sudo apt-get update && sudo apt-get install -y gcovr
+
+      - name: Configure CMAKE
+        run: cmake -S . -B build -DCMAKE_BUILD_TYPE=Debug -DENABLE_COVERAGE=ON
+
+      - name: Build
+        run: cmake --build build --config Debug
+
+      - name: Run Tests
+        run: ctest --test-dir build -C Debug --output-on-failure
+
+      - name: Calculate Coverage
+        run: |
+          mkdir -p coverage
+          gcovr --root . \
+            --filter src/ \
+            --print-summary \
+            --html-details coverage/index.html
+
+      - uses: actions/upload-artifact@v7
+        with:
+          name: coverage-report
+          path: coverage
