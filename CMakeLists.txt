@@ -19,6 +19,13 @@ if (NOT MSVC AND CMAKE_BUILD_TYPE STREQUAL "Debug")
     target_link_options(sanitizers INTERFACE -fsanitize=address,undefined)
 endif ()
 
+option(ENABLE_COVERAGE "Enable code coverage reports" OFF)
+add_library(coverage INTERFACE)
+if (ENABLE_COVERAGE AND NOT MSVC)
+    target_compile_options(coverage INTERFACE -O0 -g --coverage)
+    target_link_options(coverage INTERFACE --coverage)
+endif ()
+
 include(CTest)
 
 add_subdirectory(src)
