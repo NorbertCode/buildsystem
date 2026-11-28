@@ -13,12 +13,12 @@ FetchContent_MakeAvailable(googletest)
 set_target_properties(gtest gtest_main gmock gmock_main PROPERTIES EXPORT_COMPILE_COMMANDS OFF)
 
 add_executable(
-    run_tests
+    tests
     test.cpp
 )
 
 target_link_libraries(
-    run_tests PRIVATE
+    tests PRIVATE
     gtest
     gtest_main
     warnings
@@ -26,4 +26,4 @@ target_link_libraries(
 )
 
 include(GoogleTest)
-gtest_discover_tests(run_tests)
+gtest_discover_tests(tests)

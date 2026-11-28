@@ -1,0 +1,134 @@
+name: Build Analyze and Test
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build:
+    name: Build
+
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-24.04, windows-2025, macos-26]
+
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Configure CMake
+        run: cmake -S . -B build -DCMAKE_BUILD_TYPE=Debug -DCMAKE_EXPORT_COMPILE_COMMANDS=ON
+
+      - name: Build
+        run: cmake --build build --config Debug
+
+      - uses: actions/upload-artifact@v7
+        with:
+          name: build-${{ matrix.os }}
+          path: build/
+
+  format:
+    name: Formatting
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Install Clang-Format
+        run: sudo apt-get update && sudo apt-get install -y clang-format
+
+      - name: Run Clang-Format
+        run: find . -path ./build -prune -o -type f \( -name "*.cpp" -o -name "*.hpp" \) -exec clang-format --dry-run --Werror -style=file {} +
+
+  analyze:
+    name: Static Analysis
+    needs: build
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/download-artifact@v7
+        with:
+          name: build-ubuntu-24.04
+          path: build/
+
+      - name: Install Clang-Tidy
+        run: sudo apt-get update && sudo apt-get install -y clang-tidy
+
+      - name: Run Clang-Tidy
+        run: run-clang-tidy -p build
+
+  test:
+    name: Tests
+    needs: build
+
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-24.04, windows-2025, macos-26]
+
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/download-artifact@v7
+        with:
+          name: build-${{ matrix.os }}
+          path: build/
+
+      - name: Add Permissions to Executable
+        if: runner.os != 'Windows'
+        run: chmod +x build/tests/tests
+
+      - name: Run Tests
+        run: ctest --test-dir build -C Debug --output-on-failure
+
+  docs:
+    name: Generate Docs
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Install Doxygen
+        run: sudo apt-get update && sudo apt-get install -y doxygen graphviz
+
+      - name: Build Docs
+        run: doxygen Doxyfile
+
+      - uses: actions/upload-artifact@v7
+        with:
+          name: docs
+          path: docs/html
+
+  coverage:
+    name: Calculate Coverage
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Install gcovr
+        run: sudo apt-get update && sudo apt-get install -y gcovr
+
+      - name: Configure CMAKE
+        run: cmake -S . -B build -DCMAKE_BUILD_TYPE=Debug -DENABLE_COVERAGE=ON
+
+      - name: Build
+        run: cmake --build build --config Debug
+
+      - name: Run Tests
+        run: ctest --test-dir build -C Debug --output-on-failure
+
+      - name: Calculate Coverage
+        run: |
+          mkdir -p coverage
+          gcovr --root . \
+            --filter src/ \
+            --print-summary \
+            --html-details coverage/index.html
+
+      - uses: actions/upload-artifact@v7
+        with:
+          name: coverage-report
+          path: coverage
